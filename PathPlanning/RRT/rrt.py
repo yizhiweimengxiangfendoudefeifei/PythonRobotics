@@ -46,7 +46,7 @@ class RRT:
                  goal,
                  obstacle_list,
                  rand_area,
-                 expand_dis=3.0,
+                 expand_dis=3.0,# 采样步长
                  path_resolution=0.5,
                  goal_sample_rate=5,
                  max_iter=500,
@@ -74,7 +74,7 @@ class RRT:
             self.play_area = None
         self.expand_dis = expand_dis
         self.path_resolution = path_resolution
-        self.goal_sample_rate = goal_sample_rate
+        self.goal_sample_rate = goal_sample_rate# 目标采样率
         self.max_iter = max_iter
         self.obstacle_list = obstacle_list
         self.node_list = []
@@ -87,7 +87,7 @@ class RRT:
         animation: flag for animation on or off
         """
 
-        self.node_list = [self.start]
+        self.node_list = [self.start]#起点加入，作为根节点
         for i in range(self.max_iter):
             rnd_node = self.get_random_node()
             nearest_ind = self.get_nearest_node_index(self.node_list, rnd_node)
@@ -98,7 +98,7 @@ class RRT:
             if self.check_if_outside_play_area(new_node, self.play_area) and \
                self.check_collision(
                    new_node, self.obstacle_list, self.robot_radius):
-                self.node_list.append(new_node)
+                self.node_list.append(new_node)# 将新的节点加入树中
 
             if animation and i % 5 == 0:
                 self.draw_graph(rnd_node)
@@ -107,6 +107,7 @@ class RRT:
                                       self.node_list[-1].y) <= self.expand_dis:
                 final_node = self.steer(self.node_list[-1], self.end,
                                         self.expand_dis)
+                # 核查碰撞，如果没有碰撞则safe会返回最终的路径；否则返回None
                 if self.check_collision(
                         final_node, self.obstacle_list, self.robot_radius):
                     return self.generate_final_course(len(self.node_list) - 1)
@@ -260,8 +261,14 @@ def main(gx=6.0, gy=10.0):
     print("start " + __file__)
 
     # ====Search Path with RRT====
-    obstacleList = [(5, 5, 1), (3, 6, 2), (3, 8, 2), (3, 10, 2), (7, 5, 2),
-                    (9, 5, 2), (8, 10, 1)]  # [x, y, radius]
+    obstacleList = [
+        (3,3,1.5),
+        (12,2,3),
+        (3,9,2),
+        (9,11,2),
+    ]
+    # obstacleList = [(5, 5, 1), (3, 6, 2), (3, 8, 2), (3, 10, 2), (7, 5, 2),
+    #                 (9, 5, 2), (8, 10, 1)]  # [x, y, radius]
     # Set Initial parameters
     rrt = RRT(
         start=[0, 0],
